@@ -4,7 +4,7 @@ char repeatMenu();/*Function that asks the user if they would like to repeat the
 				  Returns a char.*/
 int main()
 {
-	list<char> function;
+	list<char> function; //BWAHAHAHA!
 	string input;
 	char menu;
 
