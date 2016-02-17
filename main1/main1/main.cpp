@@ -1,3 +1,7 @@
+#include <string>
+#include <list>
+#include <iostream>
+using namespace std;
 string inputMenu();/*Function that asks the user to input his/her polynomials.
 				   Returns a string*/
 char repeatMenu();/*Function that asks the user if they would like to repeat the process of the inputMenu function.
