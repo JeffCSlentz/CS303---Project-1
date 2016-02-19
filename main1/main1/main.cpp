@@ -1,6 +1,8 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include "Polynomial.h"
+#include <cstdlib>
 using namespace std;
 string inputMenu();/*Function that asks the user to input his/her polynomials.
 				   Returns a string*/   
@@ -8,22 +10,39 @@ char repeatMenu();/*Function that asks the user if they would like to repeat the
 				  Returns a char.*/
 int main()
 {
-	list<char> function; //BWAHAHAHA!
+	int numberOfPolys = 5;
+	list<Polynomial> function; /*List that holds all of the polynomials*/
+	Polynomial *poly; /*Pointer for polynomials*/
+	poly = new Polynomial[5];
 	string input;
 	char menu;
 
 	do{
-		input = inputMenu();
-		for (string::iterator it = input.begin(); it != input.end(); ++it){
-			if ((*it == 'X') || (*it == 'x')) {
-				++it;
-				if ((*it == '^')) {
+		input = inputMenu();/*Read in the data*/
+		for (string::iterator it = input.begin(); it != input.end(); ++it){/*Iterate through the string data*/
+			if((*it == '-')){ /*If the char variable is a negative sign. Then create a new polynomial*/
+				poly = new Polynomial; //Creates a new polynomial
+				poly->setNegative(true); //Sets that polynomials leading coefficient to negative
+				++it; //Go to the next character in the string
+
+				if ((*it == 'X') || (*it == 'x')) {
+					poly->setVariable(*it);
 					++it;
-					function.push_back(*it);
+					if (*it == '^'){
+						poly->setGreaterThan(true);
+						++it;
+						poly->setExponent(*it);
+						function.push_back(poly[0]);
+					}
 				}
-				cout << *it;
+				else
+				{
+					poly->setCoefficient(*it);
+				}
+				numberOfPolys++;
 			}
 		}
+		cout << function.front().getExponent() << endl;
 		menu = repeatMenu();
 	} while ((menu == 'y') || (menu == 'Y'));
 
