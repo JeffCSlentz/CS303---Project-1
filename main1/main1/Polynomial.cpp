@@ -6,3 +6,4 @@ void Polynomial::setPoly(bool neg, char coeff, char var, bool greaterThan, char 
 	variable_greater_than_one = greaterThan;
 	variable_exponent = exponent;
 }
+
