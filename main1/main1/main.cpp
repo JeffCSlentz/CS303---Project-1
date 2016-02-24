@@ -6,12 +6,33 @@
 #include <cstdlib>
 using namespace std;
 
+//global variables
+
+string menu = "Welcome to the fabulous polynomial adder.\n"
+"Please enter a choice.\n"
+"1. Input first polynomial.\n"
+"2. Input second polynomial.\n"
+"3. Add first and second polynomial and display result.\n"
+"4. Quit.\n"
+"Please enter a choice: ";
+
+
+
 //Prototypes -------------------------------
-string inputMenu();/*Function that asks the user to input his/her polynomials.
+string grabPoly();/*Function that asks the user to input his/her polynomials.
 				   Returns a string*/   
-char repeatMenu();/*Function that asks the user if they would like to repeat the process of the inputMenu function.
+void sortPoly(list<Term>& poly);
+
+bool comp(const Term& a, const Term& b);
+
+//void sumFun(list<Term>& poly1, list<Term>& poly2, list<Term>& polySum);
+void printPoly(list<Term>& poly);
+
+void sumFun(list<Term>& poly1, list<Term>& poly2);
+
+char repeatMenu();/*Function that asks the user if they would like to repeat the process of the grabPoly function.
 				  Returns a char.*/
-list<Term>* ConstructPolynomial(string); /*Go to Main Body for details*/
+void constructPoly(string userPoly, list<Term>& poly); /*Go to Main Body for details*/
 char User_Interface();
 
 int main()
@@ -24,7 +45,7 @@ int main()
 	//char menu;
 
 	//do{
-	//	input = inputMenu();/*Read in the data*/
+	//	input = grabPoly();/*Read in the data*/
 	//	for (string::iterator it = input.begin(); it != input.end(); ++it){/*Iterate through the string data*/
 	//		if((*it == '-')){ /*If the char variable is a negative sign. Then create a new polynomial*/
 	//			poly = new Polynomial; //Creates a new polynomial
@@ -57,60 +78,88 @@ int main()
 	/                 Tedious work will be wrestled out within functions.                /
 	/  -------------------------- Variable Declarations ------------------------------  */ 
 	
-	char menu_input;
-	string user_polynomial;
+	int menu_input;
+	string user_poly;
 	list<Term> Poly1, Poly2, SumPoly;	// HEY~~!! LISTEN~~!! -Navi
 										// These may need to be POINTERS to lists of terms. Later functions'll may return
 										// a pointer to a list of terms. So heads up.
 	
 	/* ----------------------------------- Main Body ----------------------------------- */
 
+
+	
+
+
 	do{
 		// menu_input = UserInterface() // UserInterface() will display the menu, collect user input, 
 										// and ERROR HANDLE -> returns user's option (char) 
 										// Implementation details are kept neat and hidden!
+
+		cout << menu;
+		cin >> menu_input;				//sorry, i skipped UI, YOLO
+
+
 		switch (menu_input)
 		{
 		case 1:
-			user_polynomial = inputMenu();
-			// Poly1 = ConstructPolynomial(user_polynomial); 
-											 // ConstructPolynomial is a backbone function:
-											 // ConstructPolynomial will MOST IMPORTANTLY create the actual list of terms
+			user_poly = grabPoly();				//Grab raw string input.
+			Poly1.clear();						//Clear the list.
+
+			constructPoly(user_poly, Poly1);	//Build the list.
+			printPoly(Poly1);
+											 // constructPoly is a backbone function:
+											 // constructPoly will MOST IMPORTANTLY create the actual list of terms
 											 //   -> Returns a pointer to the constructed list
 			// Wanna print out the user's polynomial after it's constructed? Sounds like more work, but it'll be user friendly...
 			break;
 
 		case 2:
-			user_polynomial = inputMenu();
-			// Poly2 = ConstructPolynomial(user_polynomial); // Same Function as case 1; differnt variable.
+			user_poly = grabPoly();				//Read case 1.
+			Poly2.clear();
+
+			constructPoly(user_poly, Poly2);
+
+			// Poly2 = constructPoly(user_poly); // Same Function as case 1; differnt variable.
 			// Print out user's polynomial?... No?...Okey~~...
 			break;
 
-		case 3: 
+		case 3:
+			Poly1.sort(); Poly2.sort();
+			sumFun(Poly1, Poly2);
+			SumPoly.merge(Poly1);
+			SumPoly.merge(Poly2);
+			printPoly(SumPoly);					//Print it nicely.
+
+
 			// SumPoly = Poly1 + Poly2;		// WE may need to override the addition operator for this...
 											// Keeps the main neat AF though!!
 			// PRINT OUT the user's polynomial! HA! THIS PART'S REQUIRED! SO TAKE THAT!... Team... ... dang it...
+
+
 			break;
 
-		case 'q': 
-			break;					/*  And actually, this line's just fine: If the user gave 'q',     /
+		case 4: 
+			break;					//I switched it back to 4 because it gave me an inifite loop otherwise :O -Jeff
+									/*  And actually, this line's just fine: If the user gave 'q',     /
 									/   then the switch can simply pass and end the loop naturally :3 */
 		}
-	} while (menu_input != 'q');
+	} while (menu_input != 4);
 
 	/* So we can just leave without explicitly deleting the Lists, since  /
 	/  our Term class has its own Deconstructor... Right?... (Right?)	 */
+	//Probably? -Jeff
 	return 0;	
 }
 
-string inputMenu(){
+string grabPoly(){
 	string input;
-	cout << "Please enter your polynomial in a user-friendly fashion." << endl;
-	cout << "For example: 3x^2 - 1x^2 + 1" << '\t' << "Varaibles do not need to be entered in order" << endl;
+	cout << "Please enter your polynomial. For example: \"3x^2+x-54\"" << endl;
 	cin >> input;
 	return input;
 }
 
+
+//DEPRACATED
 char repeatMenu(){
 	char menu;
 	cout << "\nWould you like to enter another polynomial?" << endl;
@@ -120,12 +169,139 @@ char repeatMenu(){
 	return menu;
 }
 
-/*list<Term>* ConstructPolynomial(string)
-{
-	//BODY ME!
-}
-*/
 
+//This function takes in a raw string and an empty list and populates that list.
+void constructPoly(string userPoly, list<Term>& poly){
+
+	string::iterator itr = userPoly.begin();
+
+	if (*itr != '-'){		//Add a plus to the beginning if starting term isn't negative
+		userPoly = "+" + userPoly;
+		itr = userPoly.begin();
+	} 
+
+
+	while (itr != userPoly.end()){
+
+		bool signC; // pos = true, neg = false.   C = Coef, E =Exp
+		bool signE = true;
+
+		string tempCoef = ""; //temporary coefficient holder
+		string tempExp = ""; //temporary exponent holder
+
+
+		//Check first character for positive or negative
+		//		-123x^-34
+		//		^
+		if (itr != userPoly.end() && *itr == '+'){
+			signC = true;
+		}
+		else{
+			signC = false;
+		}
+
+		itr++;
+
+		//Check for x after the + or - . This means coef must be 1.
+		//+x
+		// ^
+		if (itr != userPoly.end() && *itr == 'x'){
+			tempCoef = '1';
+		}
+
+		//If the iterator isn't currently on x, +, or -, it's a number so add it to the coefficient string.
+		//		-123x^-34
+		//		 ^^^
+		while (itr != userPoly.end() && *itr != 'x' && *itr != '+' && *itr != '-'){
+			tempCoef += *itr;
+			itr++;
+		}
+
+
+		//If the next iterator after the coefficients is the end, +, or -, the exponent is 0. Example below.
+		//234+2x^3				234
+		//   ^					   ^
+		if (itr == userPoly.end() || *itr == '+' || *itr == '-'){
+			tempExp = '0';
+		}
+		else if (itr != userPoly.end()){
+			//Skip over x.
+			//54x^34
+			//	^
+			itr++;
+
+
+			if (itr == userPoly.end()){
+				tempExp = '1';
+				break;
+			}
+			//If next char is + or -, there was no carrot and the exponent is one. Example below.
+			//543x+34x^3
+			//	  ^
+			else if (itr != userPoly.end() && *itr == '+' || *itr == '-'){
+				tempExp = "1";
+			}
+
+			//If next char is a carrot, we have exponents.
+			else if (itr != userPoly.end() && *itr == '^'){
+
+				itr++; //Skip over the carrot
+
+				//If the next character is a negative, change signE and iterate forward
+				if (itr != userPoly.end() && *itr == '-'){
+					signE = false;
+					itr++;
+				}
+
+				// Iterate, adding onto tempExp until the end or a + or - is reached.
+				//3x^342+34
+				//	 ^^^
+				while (itr != userPoly.end() && *itr != '+' && *itr != '-'){
+					tempExp += *itr;
+					itr++;
+				}
+			}
+		}
+
+		//Convert the strings to integers.
+		int coef = stoi(tempCoef);
+		int exp = stoi(tempExp);
+
+		//Change signs if necessary
+		if (!signC){
+			coef *= -1;
+		}
+
+		if (!signE){
+			exp *= -1;
+		}
+
+		//Create a new term and push it onto the poly list.
+		Term a(coef, exp);
+		poly.push_back(a);
+	}
+}
+
+
+
+void sumFun(list<Term>& poly1, list<Term>& poly2){
+	for (list<Term>::iterator itr1 = poly1.begin(); itr1 != poly1.end(); itr1++){
+		for (list<Term>::iterator itr2 = poly2.begin(); itr2 != poly2.end(); itr2++){
+			if (itr1->getExp() == itr2->getExp()){
+				itr1->setCoef(itr1->getCoef() + itr2->getCoef());
+				itr2->setCoef(0);
+			}
+		}
+	}
+}
+
+void printPoly(list<Term>& poly){
+	cout << endl;
+	for (list<Term>::iterator itr = poly.begin(); itr != poly.end(); itr++){
+		itr->print();
+	}
+	cout << endl << endl;
+}
 /*char User_Interface()
 {
 	//BODY ME TOO!!
