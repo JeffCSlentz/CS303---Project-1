@@ -1,7 +1,7 @@
 #include <string>
 #include <list>
 #include <iostream>
-#include "Polynomial.h"
+//#include "Polynomial.h"
 #include "Term.h"
 #include <cstdlib>
 using namespace std;
@@ -39,7 +39,7 @@ void cleanPoly(list<Term>& poly);
 char repeatMenu();/*Function that asks the user if they would like to repeat the process of the grabPoly function.
 				  Returns a char.*/
 void constructPoly(string userPoly, list<Term>& poly); /*Go to Main Body for details*/
-char User_Interface();
+//char User_Interface();
 
 int main()
 {
@@ -86,9 +86,7 @@ int main()
 	
 	int menu_input;
 	string user_poly;
-	list<Term> Poly1, Poly2, SumPoly;	// HEY~~!! LISTEN~~!! -Navi
-										// These may need to be POINTERS to lists of terms. Later functions'll may return
-										// a pointer to a list of terms. So heads up.
+	list<Term> Poly1, Poly2, SumPoly;
 	
 	/* ----------------------------------- Main Body ----------------------------------- */
 
@@ -113,10 +111,6 @@ int main()
 
 			cout << "You entered: ";
 			printPoly(Poly1);
-											 // constructPoly is a backbone function:
-											 // constructPoly will MOST IMPORTANTLY create the actual list of terms
-											 //   -> Returns a pointer to the constructed list
-			// Wanna print out the user's polynomial after it's constructed? Sounds like more work, but it'll be user friendly...
 			break;
 
 		case 2:
@@ -127,9 +121,6 @@ int main()
 
 			cout << "You entered: ";
 			printPoly(Poly2);
-
-			// Poly2 = constructPoly(user_poly); // Same Function as case 1; differnt variable.
-			// Print out user's polynomial?... No?...Okey~~... OKAY
 			break;
 
 		case 3:
@@ -155,19 +146,10 @@ int main()
 			else{
 				cout << endl << "Something went wrong. =(" << endl;
 			}
-
-
-			// SumPoly = Poly1 + Poly2;		// WE may need to override the addition operator for this...
-											// Keeps the main neat AF though!!
-			// PRINT OUT the user's polynomial! HA! THIS PART'S REQUIRED! SO TAKE THAT!... Team... ... dang it...
-
-
 			break;
 
 		case 4: 
 			break;					//I switched it back to 4 because it gave me an inifite loop otherwise :O -Jeff
-									/*  And actually, this line's just fine: If the user gave 'q',     /
-									/   then the switch can simply pass and end the loop naturally :3 */
 		}
 	} while (menu_input != 4);
 
@@ -349,6 +331,7 @@ void cleanPoly(list<Term>& poly){
 /*char User_Interface()
 {
 	//BODY ME TOO!!
+	// no.
 }
 */
 
