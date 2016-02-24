@@ -6,11 +6,11 @@ Term::Term(int coef, int exp){
 	exponent = exp;
 }
 
-int Term::getExp(){
+int Term::getExp() const{
 	return exponent;
 }
 
-int Term::getCoef(){
+int Term::getCoef() const{
 	return coefficient;
 }
 
@@ -45,8 +45,6 @@ void Term::print(bool first){
 		cout << "+";
 	}
 	
-
-
 	if (exponent == 0){
 	}
 	else if (exponent == 1){

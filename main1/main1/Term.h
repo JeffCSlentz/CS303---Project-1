@@ -11,8 +11,8 @@ public:
 
 	Term(int coef, int exp);
 
-	int getExp();
-	int getCoef();
+	int getExp() const;
+	int getCoef() const;
 
 	void setExp(int exp);
 	void setCoef(int coef);

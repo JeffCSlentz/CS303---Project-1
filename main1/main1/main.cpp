@@ -1,7 +1,6 @@
 #include <string>
 #include <list>
 #include <iostream>
-//#include "Polynomial.h"
 #include "Term.h"
 #include <cstdlib>
 using namespace std;
@@ -20,66 +19,20 @@ string welcome =
 "~~~~~Welcome to the fabulous polynomial adder!~~~~~\n"
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n";
 
-
-
-//Prototypes -------------------------------
 string grabPoly();/*Function that asks the user to input his/her polynomials.
 				   Returns a string*/   
-void sortPoly(list<Term>& poly);
-
-bool comp(const Term& a, const Term& b);
-
-//void sumFun(list<Term>& poly1, list<Term>& poly2, list<Term>& polySum);
 void printPoly(list<Term>& poly);
 
 void sumFun(list<Term>& poly1, list<Term>& poly2);
 
 void cleanPoly(list<Term>& poly);
 
-char repeatMenu();/*Function that asks the user if they would like to repeat the process of the grabPoly function.
-				  Returns a char.*/
 void constructPoly(string userPoly, list<Term>& poly); /*Go to Main Body for details*/
-//char User_Interface();
+
+void checkDupPoly(list<Term>& poly);
 
 int main()
 {
-	//int numberOfPolys = 5;
-	//list<Polynomial> function; /*List that holds all of the polynomials*/
-	//Polynomial *poly; /*Pointer for polynomials*/
-	//poly = new Polynomial[5];
-	//string input;
-	//char menu;
-
-	//do{
-	//	input = grabPoly();/*Read in the data*/
-	//	for (string::iterator it = input.begin(); it != input.end(); ++it){/*Iterate through the string data*/
-	//		if((*it == '-')){ /*If the char variable is a negative sign. Then create a new polynomial*/
-	//			poly = new Polynomial; //Creates a new polynomial
-	//			poly->setNegative(true); //Sets that polynomials leading coefficient to negative
-	//			++it; //Go to the next character in the string
-
-	//			if ((*it == 'X') || (*it == 'x')) {
-	//				poly->setVariable(*it);
-	//				++it;
-	//				if (*it == '^'){
-	//					poly->setGreaterThan(true);
-	//					++it;
-	//					poly->setExponent(*it);
-	//					function.push_back(poly[0]);
-	//				}
-	//			}
-	//			else
-	//			{
-	//				poly->setCoefficient(*it);
-	//			}
-	//			numberOfPolys++;
-	//		}
-	//	}
-	//	cout << function.front().getExponent() << endl;
-	//	menu = repeatMenu();
-	//} while ((menu == 'y') || (menu == 'Y'));
-	//system("pause");
-
 	/* ================================ PROGRAM Rigidbody =============================  /
 	/                 Tedious work will be wrestled out within functions.                /
 	/  -------------------------- Variable Declarations ------------------------------  */ 
@@ -93,12 +46,8 @@ int main()
 	cout << welcome;
 
 	do{
-		// menu_input = UserInterface() // UserInterface() will display the menu, collect user input, 
-										// and ERROR HANDLE -> returns user's option (char) 
-										// Implementation details are kept neat and hidden!
-
 		cout << menu;
-		cin >> menu_input;				//sorry, i skipped UI, YOLO - Jeff
+		cin >> menu_input;			
 
 
 		switch (menu_input)
@@ -108,6 +57,10 @@ int main()
 			Poly1.clear();						//Clear the list.
 
 			constructPoly(user_poly, Poly1);	//Build the list.
+
+			checkDupPoly(Poly1);
+
+			if (!Poly2.empty()) Poly1.sort();
 
 			cout << "You entered: ";
 			printPoly(Poly1);
@@ -119,6 +72,10 @@ int main()
 
 			constructPoly(user_poly, Poly2);
 
+			checkDupPoly(Poly2);
+
+			if (!Poly1.empty()) Poly2.sort();
+
 			cout << "You entered: ";
 			printPoly(Poly2);
 			break;
@@ -126,13 +83,12 @@ int main()
 		case 3:
 			SumPoly.clear();
 
-			if (!Poly1.empty()) Poly1.sort();
-			if (!Poly2.empty()) Poly2.sort();
+			
+			
 			sumFun(Poly1, Poly2);
 
 			if (!Poly2.empty()) cleanPoly(Poly2);
-			
-			
+
 			if (!Poly1.empty()) SumPoly.merge(Poly1);
 			if (!Poly2.empty()) SumPoly.merge(Poly2);
 
@@ -153,9 +109,6 @@ int main()
 		}
 	} while (menu_input != 4);
 
-	/* So we can just leave without explicitly deleting the Lists, since  /
-	/  our Term class has its own Deconstructor... Right?... (Right?)	 */
-	//Probably? -Jeff
 	return 0;	
 }
 
@@ -166,18 +119,6 @@ string grabPoly(){
 	cout << "\n";
 	return input;
 }
-
-
-//DEPRACATED
-char repeatMenu(){
-	char menu;
-	cout << "\nWould you like to enter another polynomial?" << endl;
-	cout << "Enter N or n for No and Y or y for yes ";
-	cin >> menu;
-	cout << endl;
-	return menu;
-}
-
 
 //This function takes in a raw string and an empty list and populates that list.
 void constructPoly(string userPoly, list<Term>& poly){
@@ -290,8 +231,6 @@ void constructPoly(string userPoly, list<Term>& poly){
 	}
 }
 
-
-
 void sumFun(list<Term>& poly1, list<Term>& poly2){
 	if (poly1.empty() || poly2.empty()){
 		return;
@@ -328,11 +267,25 @@ void cleanPoly(list<Term>& poly){
 	}
 	return;
 }
-/*char User_Interface()
-{
-	//BODY ME TOO!!
-	// no.
-}
-*/
 
-//jeff's test
+void checkDupPoly(list<Term>& poly) {
+	list<Term>::iterator itr1 = poly.begin();
+	list<Term>::iterator itr2 = poly.begin();
+
+	while (itr1 != poly.end()) {
+		itr2 = itr1;
+		itr2++;
+		while (itr2 != poly.end()) {
+			if (itr1->getExp() == itr2->getExp()) {
+				itr1->setCoef(itr1->getCoef() + itr2->getCoef());
+				itr2 = poly.erase(itr2);
+			}
+			if (itr2 == poly.end()) {
+				break;
+			}
+			itr2++;
+		}
+		itr1++;
+	}
+	
+}
