@@ -36,7 +36,7 @@ void Term::print(bool first){
 		cout << coefficient;
 	}
 	else if (coefficient == 1 && exponent == 0){
-		cout << coefficient;
+		cout << "+" << coefficient;  
 	}
 	else if (coefficient == -1){
 		cout << "-";
