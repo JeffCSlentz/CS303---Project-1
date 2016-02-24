@@ -8,13 +8,17 @@ using namespace std;
 
 //global variables
 
-string menu = "Welcome to the fabulous polynomial adder.\n"
-"Please enter a choice.\n"
+string menu = 
 "1. Input first polynomial.\n"
 "2. Input second polynomial.\n"
 "3. Add first and second polynomial and display result.\n"
 "4. Quit.\n"
-"Please enter a choice: ";
+"Please choose: ";
+
+string welcome =
+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+"~~~~~Welcome to the fabulous polynomial adder!~~~~~\n"
+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n";
 
 
 
@@ -29,6 +33,8 @@ bool comp(const Term& a, const Term& b);
 void printPoly(list<Term>& poly);
 
 void sumFun(list<Term>& poly1, list<Term>& poly2);
+
+void cleanPoly(list<Term>& poly);
 
 char repeatMenu();/*Function that asks the user if they would like to repeat the process of the grabPoly function.
 				  Returns a char.*/
@@ -86,9 +92,7 @@ int main()
 	
 	/* ----------------------------------- Main Body ----------------------------------- */
 
-
-	
-
+	cout << welcome;
 
 	do{
 		// menu_input = UserInterface() // UserInterface() will display the menu, collect user input, 
@@ -96,7 +100,7 @@ int main()
 										// Implementation details are kept neat and hidden!
 
 		cout << menu;
-		cin >> menu_input;				//sorry, i skipped UI, YOLO
+		cin >> menu_input;				//sorry, i skipped UI, YOLO - Jeff
 
 
 		switch (menu_input)
@@ -106,6 +110,8 @@ int main()
 			Poly1.clear();						//Clear the list.
 
 			constructPoly(user_poly, Poly1);	//Build the list.
+
+			cout << "You entered: ";
 			printPoly(Poly1);
 											 // constructPoly is a backbone function:
 											 // constructPoly will MOST IMPORTANTLY create the actual list of terms
@@ -119,16 +125,36 @@ int main()
 
 			constructPoly(user_poly, Poly2);
 
+			cout << "You entered: ";
+			printPoly(Poly2);
+
 			// Poly2 = constructPoly(user_poly); // Same Function as case 1; differnt variable.
-			// Print out user's polynomial?... No?...Okey~~...
+			// Print out user's polynomial?... No?...Okey~~... OKAY
 			break;
 
 		case 3:
-			Poly1.sort(); Poly2.sort();
+			SumPoly.clear();
+
+			if (!Poly1.empty()) Poly1.sort();
+			if (!Poly2.empty()) Poly2.sort();
 			sumFun(Poly1, Poly2);
-			SumPoly.merge(Poly1);
-			SumPoly.merge(Poly2);
-			printPoly(SumPoly);					//Print it nicely.
+
+			if (!Poly2.empty()) cleanPoly(Poly2);
+			
+			
+			if (!Poly1.empty()) SumPoly.merge(Poly1);
+			if (!Poly2.empty()) SumPoly.merge(Poly2);
+
+			if (!SumPoly.empty()){
+				cleanPoly(SumPoly);
+
+				cout << "\nFinal polynomial is: ";
+
+				printPoly(SumPoly);		//Print it nicely.
+			}
+			else{
+				cout << endl << "Something went wrong. =(" << endl;
+			}
 
 
 			// SumPoly = Poly1 + Poly2;		// WE may need to override the addition operator for this...
@@ -153,8 +179,9 @@ int main()
 
 string grabPoly(){
 	string input;
-	cout << "Please enter your polynomial. For example: \"3x^2+x-54\"" << endl;
+	cout << "\nEnter your polynomial without spaces. For example: \"3x^2+x-54\"" << endl;
 	cin >> input;
+	cout << "\n";
 	return input;
 }
 
@@ -233,7 +260,6 @@ void constructPoly(string userPoly, list<Term>& poly){
 
 			if (itr == userPoly.end()){
 				tempExp = '1';
-				break;
 			}
 			//If next char is + or -, there was no carrot and the exponent is one. Example below.
 			//543x+34x^3
@@ -285,6 +311,9 @@ void constructPoly(string userPoly, list<Term>& poly){
 
 
 void sumFun(list<Term>& poly1, list<Term>& poly2){
+	if (poly1.empty() || poly2.empty()){
+		return;
+	}
 	for (list<Term>::iterator itr1 = poly1.begin(); itr1 != poly1.end(); itr1++){
 		for (list<Term>::iterator itr2 = poly2.begin(); itr2 != poly2.end(); itr2++){
 			if (itr1->getExp() == itr2->getExp()){
@@ -296,11 +325,26 @@ void sumFun(list<Term>& poly1, list<Term>& poly2){
 }
 
 void printPoly(list<Term>& poly){
-	cout << endl;
+	bool first = true;
 	for (list<Term>::iterator itr = poly.begin(); itr != poly.end(); itr++){
-		itr->print();
+		itr->print(first);
+		first = false;
 	}
 	cout << endl << endl;
+}
+
+void cleanPoly(list<Term>& poly){
+	list<Term>::iterator itr = poly.begin();
+	while (itr != poly.end()){
+		if (itr->getCoef() == 0){
+			itr = poly.erase(itr);
+			if (itr == poly.end()) return;
+		}
+		else{
+			itr++;
+		}
+	}
+	return;
 }
 /*char User_Interface()
 {

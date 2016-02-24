@@ -21,15 +21,28 @@ void Term::setCoef(int coef){
 	coefficient = coef;
 }
 
-void Term::print(){
-	if (coefficient > 0){
-		cout << "+" << coefficient;
+void Term::print(bool first){
+
+	if (coefficient > 0 && coefficient != 1){
+		if (!first){
+			cout << "+";
+		}
+		cout << coefficient;
+	}
+	else if (coefficient < 0 && coefficient != -1){
+		cout << coefficient;
+	}
+	else if (coefficient == -1 && exponent == 0){
+		cout << coefficient;
+	}
+	else if (coefficient == 1 && exponent == 0){
+		cout << coefficient;
 	}
 	else if (coefficient == -1){
 		cout << "-";
 	}
-	else if (coefficient != 1){
-		cout << coefficient;
+	else if (!first){
+		cout << "+";
 	}
 	
 

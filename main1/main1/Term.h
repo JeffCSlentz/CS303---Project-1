@@ -17,7 +17,7 @@ public:
 	void setExp(int exp);
 	void setCoef(int coef);
 
-	void Term::print();
+	void Term::print(bool first);
 
 	bool operator<(const Term& rhs) const
 	{
